@@ -3,8 +3,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import nl.intrix83.tutorials.transactional.fun.products.ProductRepository;
-import nl.intrix83.tutorials.transactional.fun.products.propagation.NestedTransactionPropagationService;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +20,17 @@ public class NestedTransactionPropagationServiceTest {
 
     @Autowired
     private ProductRepository productRepository;
+
+    @Before
+    public void before() {
+        productRepository.deleteAll();
+    }
+
+    @Test
+    public void shouldCommit() {
+        nestedTransactionPropagationService.addProduct(false, false);
+        assertThat(productRepository.findAll()).hasSize(11);
+    }
 
     @Test
     public void shouldRoleBackAll() {

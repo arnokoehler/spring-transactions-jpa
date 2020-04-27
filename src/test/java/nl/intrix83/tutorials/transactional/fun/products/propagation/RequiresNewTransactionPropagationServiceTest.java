@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import nl.intrix83.tutorials.transactional.fun.products.ProductRepository;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,13 +21,25 @@ public class RequiresNewTransactionPropagationServiceTest {
     @Autowired
     private ProductRepository productRepository;
 
+    @Before
+    public void before() {
+        productRepository.deleteAll();
+    }
+
+    @Test
+    public void shouldCommit() {
+        requiresNewTransactionPropagationService.addProduct(false, false);
+        assertThat(productRepository.findAll()).hasSize(11);
+    }
+
     // Only works with JtaTransactionManager ?!
     @Test
     public void shouldRoleBackOuterOnly() {
         assertThatThrownBy(() -> requiresNewTransactionPropagationService.addProduct(true, false)) //
                 .isInstanceOf(RuntimeException.class);
 
-        assertThat(productRepository.findAll()).hasSize(5);
+//        assertThat(productRepository.findAll()).hasSize(5);
+        assertThat(productRepository.findAll()).hasSize(0);
     }
 
     @Test
