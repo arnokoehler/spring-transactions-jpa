@@ -11,7 +11,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
-public class AsyncServiceTest {
+public class AsyncServiceTest extends TestBase {
 
     @Autowired
     private AsyncService asyncService;

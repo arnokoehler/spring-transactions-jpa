@@ -10,7 +10,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
-public class TransactionalProductServiceTest {
+public class TransactionalProductServiceTest extends TestBase {
 
     @Autowired
     private TransactionalProductService transactionalProductService;

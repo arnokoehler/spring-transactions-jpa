@@ -3,6 +3,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import nl.intrix83.tutorials.transactional.fun.products.ProductRepository;
+import nl.intrix83.tutorials.transactional.fun.products.TestBase;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -13,7 +14,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
-public class NestedTransactionPropagationServiceTest {
+public class NestedTransactionPropagationServiceTest extends TestBase {
 
     @Autowired
     private NestedTransactionPropagationService nestedTransactionPropagationService;

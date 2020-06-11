@@ -5,6 +5,7 @@ import java.util.List;
 
 import nl.intrix83.tutorials.transactional.fun.products.Product;
 import nl.intrix83.tutorials.transactional.fun.products.ProductRepository;
+import nl.intrix83.tutorials.transactional.fun.products.TestBase;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -13,9 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-@SpringBootTest
 @RunWith(SpringRunner.class)
-public class IsolationProductServiceTest {
+@SpringBootTest
+public class IsolationProductServiceTest extends TestBase {
 
     @Autowired
     private IsolationProductService isolationProductService;
@@ -40,7 +41,6 @@ public class IsolationProductServiceTest {
         long end = System.currentTimeMillis();
         long timeReadOnly = end - start;
 
-
         long normalStart = System.currentTimeMillis();
         for (int i = 0; i < 100; i++) {
             List<Product> allFast = isolationProductService.getAll();
@@ -51,4 +51,6 @@ public class IsolationProductServiceTest {
 
         assertThat(timeReadOnly).isLessThan(timeNormal);
     }
+
+
 }
