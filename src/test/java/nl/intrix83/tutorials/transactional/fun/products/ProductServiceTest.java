@@ -2,14 +2,19 @@ package nl.intrix83.tutorials.transactional.fun.products;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
+@Sql(statements = { "CREATE TABLE product (id SERIAL, name VARCHAR (255));\n"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+@Sql(statements = { "DROP TABLE product;\n"}, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
 public class ProductServiceTest extends TestBase {
 
     @Autowired
@@ -17,6 +22,12 @@ public class ProductServiceTest extends TestBase {
 
     @Autowired
     private ProductRepository productRepository;
+
+    @Before
+    public void before() {
+        productRepository.deleteAll();
+
+    }
 
     @Test
     public void shouldCreateOneAndNotCareAboutException() {
@@ -28,11 +39,11 @@ public class ProductServiceTest extends TestBase {
     }
 
     @Test
-    public void shouldCreateTenAndNotCareAboutException() {
+    public void shouldCreateFirstNumberOfItemsAndNotCareAboutException() {
         assertThatThrownBy(() -> productService.addTenProducts()) //
                 .isInstanceOf(RuntimeException.class) //
                 .hasMessageContaining("Third of ten");
 
-        assertThat(productRepository.findAll()).hasSize(5);
+        assertThat(productRepository.findAll()).hasSize(4);
     }
 }

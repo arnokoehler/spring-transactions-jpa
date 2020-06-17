@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AsyncService {
 
-    private final int DELAY = 1000;
+    private final int DELAY = 500;
     private final int INIT_DELAY = 2000;
 
     private final IsolationProductService isolationProductService;
