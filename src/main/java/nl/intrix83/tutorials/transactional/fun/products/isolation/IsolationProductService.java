@@ -17,25 +17,6 @@ public class IsolationProductService {
 
     private final ProductRepository productRepository;
 
-    /**
-     * READ_COMMITTED best optimum
-     *
-     * Problems:
-     *
-     * - dirty reads        READ_UNCOMMITTED
-     * - data is modified during read by other thread
-     *
-     * - Nonrepeatablereads READ_UNCOMMITTED READ_COMMITTED
-     * - rollback happened on 1 and therefor modification on 2 is corrupt
-     *
-     * - phantom reads      READ_UNCOMMITTED READ_COMMITTED SERIALIZABLE
-     * - phantom read = reaad 10 records of a hundred read the next 10 and geet some overlap because inserts in between
-     *
-     *
-     * T1 ---- 100 --------- 110 ------> 20
-     *
-     * T2 ------------10 --------------> 10 ????
-     **/
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public void addHundredProducts() {
         for (int i = 0; i < 100; i++) {
@@ -46,7 +27,6 @@ public class IsolationProductService {
     }
 
     /* Hypothese: solve problems with versions and you get less errors */
-
 
     /**
      * readOnly = true
