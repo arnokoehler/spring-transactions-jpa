@@ -17,10 +17,10 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 @Sql(statements = { "CREATE TABLE product (id SERIAL, name VARCHAR (255));\n"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 @Sql(statements = { "DROP TABLE product;\n"}, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
-public class RequiresNewTransactionPropagationServiceTest extends TestBase {
+public class RequiresNewOuterTransactionServiceTest extends TestBase {
 
     @Autowired
-    private RequiresNewTransactionPropagationService requiresNewTransactionPropagationService;
+    private RequiresNewOuterTransactionService requiresNewOuterTransactionService;
 
     @Autowired
     private ProductRepository productRepository;
@@ -31,24 +31,22 @@ public class RequiresNewTransactionPropagationServiceTest extends TestBase {
     }
 
     @Test
-    public void shouldCommit() {
-        requiresNewTransactionPropagationService.addProduct(false, false);
+    public void shouldCommitAll() {
+        requiresNewOuterTransactionService.addProduct(false, false);
         assertThat(productRepository.findAll()).hasSize(11);
     }
 
-    // Only works with JtaTransactionManager ?!
     @Test
     public void shouldRoleBackOuterOnly() {
-        assertThatThrownBy(() -> requiresNewTransactionPropagationService.addProduct(true, false)) //
+        assertThatThrownBy(() -> requiresNewOuterTransactionService.addProduct(true, false)) //
                 .isInstanceOf(RuntimeException.class);
 
-//        assertThat(productRepository.findAll()).hasSize(5);
-        assertThat(productRepository.findAll()).hasSize(0);
+        assertThat(productRepository.findAll()).hasSize(10);
     }
 
     @Test
     public void shouldRoleBackBoth() {
-        assertThatThrownBy(() -> requiresNewTransactionPropagationService.addProduct(false, true)) //
+        assertThatThrownBy(() -> requiresNewOuterTransactionService.addProduct(false, true)) //
                 .isInstanceOf(RuntimeException.class);
 
         assertThat(productRepository.findAll()).hasSize(0);

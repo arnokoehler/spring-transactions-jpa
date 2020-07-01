@@ -34,14 +34,10 @@ public class IsolationProductServiceTest extends TestBase {
 
     }
 
-    /*
-            <tldr> The short answer to question #1 was that hibernate starts off a @Transaction(readOnly = true) session with a set session.transaction.read.only
-             synchronous JDBC call and ends with a set session.transaction.read.write call.
-             These calls are not sent when doing read-write calls which is why read-only calls were slower. </tldr>
-     */
+    // So this is an optimization for (as the best example) Hibernate but there is no guarantee that it is indeed faster
 
+//    @Repeat(value = 10)
     @Test
-    @Repeat(value = 10) // 1 run is 3 m 27 s.
     public void readOnlyShouldBeFasterButIsnt() {
         isolationProductService.addHundredProducts();
 

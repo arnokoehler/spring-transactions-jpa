@@ -17,10 +17,10 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 @Sql(statements = { "CREATE TABLE product (id SERIAL, name VARCHAR (255));\n"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 @Sql(statements = { "DROP TABLE product;\n"}, executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
-public class NestedTransactionPropagationServiceTest extends TestBase {
+public class NestedOuterTransactionServiceTest extends TestBase {
 
     @Autowired
-    private NestedTransactionPropagationService nestedTransactionPropagationService;
+    private NestedOuterTransactionService nestedOuterTransactionService;
 
     @Autowired
     private ProductRepository productRepository;
@@ -30,28 +30,35 @@ public class NestedTransactionPropagationServiceTest extends TestBase {
         productRepository.deleteAll();
     }
 
+    /**
+     * JpaDialect does not support savepoints - check your JPA provider's capabilities
+     *
+     * Actual creation of a nested transaction will only work on specific
+     * transaction managers. Out of the box, this only applies to the JDBC
+     * DataSourceTransactionManager. Some JTA providers might support nested
+     * transactions as well.
+     */
+
     @Test
     public void shouldCommit() {
-        nestedTransactionPropagationService.addProduct(false, false);
+        nestedOuterTransactionService.addProduct(false, false);
         assertThat(productRepository.findAll()).hasSize(11);
     }
 
     @Test
     public void shouldRoleBackAll() {
-        assertThatThrownBy(() -> nestedTransactionPropagationService.addProduct(true, false)) //
+        assertThatThrownBy(() -> nestedOuterTransactionService.addProduct(true, false)) //
                 .isInstanceOf(RuntimeException.class);
 
         assertThat(productRepository.findAll()).hasSize(0);
     }
 
-    // Does not work with JPA only with JDBC DataSourceTransactionManager
     @Test
     public void shouldRoleBackInnerOnly() {
-        assertThatThrownBy(() -> nestedTransactionPropagationService.addProduct(false, true)) //
+        assertThatThrownBy(() -> nestedOuterTransactionService.addProduct(false, true)) //
                 .isInstanceOf(RuntimeException.class);
 
-        assertThat(productRepository.findAll()).hasSize(0);
-//        assertThat(productRepository.findAll()).hasSize(1);
+        assertThat(productRepository.findAll()).hasSize(1);
 
     }
 }
