@@ -194,6 +194,13 @@ Also be aware that if you annotate Interfaces, transactions may not be started b
 Now when an error is thrown, the entire persistence unit is rolled back.
 Note that when you don't set up a transaction (by annotating it with @Transactional) the data is COMMITTED even though an error might have been thrown.
 
+# DEMO 
+
+In this Demo we use JPA with a Product and a ProductRepository.
+
+I have made 2 services one without transactions and one with. 
+To see this in action see: TransactionalProductServiceTest vs ProductServiceTest
+
 # Transaction Propagation
 
 Propagation is about how multiple annotated pieces of code group together. 
@@ -207,10 +214,49 @@ an individual unit of work. What could lead to inconsistency in the end.
 
 # Other propagation modes
 
+So there are other behaviours to use, but in real live code bases this leads more often to issues than wanted behaviour. 
+
+## REQUIRES_NEW
+
 On of the best known other modes is REQUIRES_NEW.
 Now REQUIRES_NEW might have a certain use case; but let's see how it works first.
 
+So basically with REQUIRES_NEW you tell the system, that when wrapped in an outer 
+transaction, this inner transaction has to be treated like independent from what happens
+in the outside world. When an exception is thrown in the inner method, only that part
+of the data needs to be reverted. Or if in the outer method an exception is thrown, 
+only that data needs to be reverted.
 
+PROPAGATION_REQUIRES_NEW starts a new, independent "inner" transaction for the given scope. 
+This transaction will be committed or rolled back completely independent from the outer transaction, having its own isolation scope, its own set of locks, etc. 
+The outer transaction will get suspended at the beginning of the inner one, and resumed once the inner one has completed.
+
+# DEMO TIME
+
+See: RequiresNewOuterTransactionServiceTest
+
+## PROPAGATION_NESTED
+
+PROPAGATION_NESTED on the other hand starts a "nested" transaction, which is a true subtransaction of the existing one. 
+What will happen is that a savepoint will be taken at the start of the nested transaction. 
+Íf the nested transaction fails, it will roll back to that savepoint. 
+The nested transaction is part of of the outer transaction, so it will only be committed at the end of of the outer transaction.
+
+What is important is that this propagation mode is NOT supported by JPA.
+
+See: NestedOuterTransactionServiceTest
+
+## PROPAGATION_NEVER / PROPAGATION_SUPPORTS / PROPAGATION_MANDATORY
+
+- PROPAGATION_NEVER will brake if executed from a current running transaction.
+- NOT_SUPPORTED will suspend the current transaction and create a new one
+- PROPAGATION_SUPPORTS will respond to the current transaction, or create a new one.
+- PROPAGATION_MANDATORY can not be called without a current running transaction
+
+# When do you use them?
+
+For me there is rarely a use case where you want any of these. The default behaviour of Spring wrapping all it comes across should be mostly sufficient in a normal project.
+But if you do need them, then be very aware of the code that might call your code in the future; because this is one of the most error prone parts of transactions.
 
 # Isolation 
 
@@ -273,17 +319,17 @@ as you can understand the higher the locking level - the slower the performance
     
 ---
 
-Well let's see what would suits our use-case:
+# Let us for a second forus on our tooling
 
 * POSTGRES default = Read committed
 * ORACLE Read commited OR serializble (NO OTHER SUPPORT)
 
 So it doesn't feel like we should really deep dive into the others besides 
-READ COMMITTED
+READ COMMITTED (since stronger modes only make your systems slower)
 
 (change my mind ...)
 
-# Seeing this in more detail
+# Seeing transactions work
 
 Configure logging of “org.springframework.transaction” to be configured with a logging level of TRACE.
 This way you can see more information about what is going on in your transactions.

@@ -5,18 +5,17 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class TransactionalProductService {
 
     private final ProductRepository productRepository;
 
-    @Transactional
     public void addProduct() {
         productRepository.save(new Product(null, "Beer"));
         throw new RuntimeException();
     }
 
-    @Transactional
     public void addTenProducts() {
         for (int i = 0; i < 10; i++) {
             productRepository.save(new Product(null, "Beer " + i));

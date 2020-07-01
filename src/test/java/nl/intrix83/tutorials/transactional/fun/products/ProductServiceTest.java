@@ -26,7 +26,6 @@ public class ProductServiceTest extends TestBase {
     @Before
     public void before() {
         productRepository.deleteAll();
-
     }
 
     @Test
