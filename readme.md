@@ -362,8 +362,9 @@ Now there is an optimistic locking exception being thrown, and this is good beca
 
 Hi there, how nice of you 
 
+# Bitronix
 
-Spring / Hibernate @Version 
+https://dnikiforov.wordpress.com/2018/03/15/spring-boot-bitronix/
 
 # Inspiraton of the day
 
