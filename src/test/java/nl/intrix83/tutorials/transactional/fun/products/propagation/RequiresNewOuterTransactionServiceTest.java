@@ -37,7 +37,7 @@ public class RequiresNewOuterTransactionServiceTest extends TestBase {
     }
 
     @Test
-    public void shouldRoleBackOuterOnly() {
+    public void shouldRollBackOuterOnly() {
         assertThatThrownBy(() -> requiresNewOuterTransactionService.addProduct(true, false)) //
                 .isInstanceOf(RuntimeException.class);
 
@@ -45,7 +45,7 @@ public class RequiresNewOuterTransactionServiceTest extends TestBase {
     }
 
     @Test
-    public void shouldRoleBackBoth() {
+    public void shouldRollBackBoth() {
         assertThatThrownBy(() -> requiresNewOuterTransactionService.addProduct(false, true)) //
                 .isInstanceOf(RuntimeException.class);
 

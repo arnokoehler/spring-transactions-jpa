@@ -1,14 +1,11 @@
 package nl.intrix83.tutorials.transactional.fun.products;
 import java.time.Duration;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.ClassRule;
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.jdbc.Sql;
 import org.testcontainers.containers.PostgreSQLContainer;
 
 

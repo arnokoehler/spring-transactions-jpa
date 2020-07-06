@@ -23,11 +23,6 @@ public class ProductServiceTest extends TestBase {
     @Autowired
     private ProductRepository productRepository;
 
-    @Before
-    public void before() {
-        productRepository.deleteAll();
-    }
-
     @Test
     public void shouldCreateOneAndNotCareAboutException() {
         assertThatThrownBy(() -> productService.addProduct()) //

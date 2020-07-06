@@ -44,7 +44,7 @@ public class IsolationProductServiceTest extends TestBase {
         long start = System.currentTimeMillis();
         for (int i = 0; i < 100; i++) {
             List<Product> allFast = isolationProductService.getAllFast();
-            assert allFast.size() == 1000;
+            assert allFast.size() == 100;
         }
         long end = System.currentTimeMillis();
         long timeReadOnlyFast = end - start;

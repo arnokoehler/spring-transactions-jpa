@@ -59,10 +59,11 @@
 
 # What is a database transaction in the first place
 
-A transaction is basically all that is considered a unit of work.
-So considering a back account, subtracting money from one account and adding it to another could be called a transaction.
-Now in fact that would work with systems that are eventually consistent, like eventing systems - 
-you do get the picture while thinking about it in that way.
+- A transaction is basically all the interactions with a database that together is considered as one unit of work.
+- So considering a back account, subtracting money from one account and adding it to another should be one transaction.
+    - Now in fact that would work with systems that are eventually consistent;
+    - eventing systems registering all the between states as well enabling logging on events etc.
+ 
 
 Database transactions are ACID:
 
@@ -160,6 +161,12 @@ public class PersistenceJPAConfig{
    }
 }
 ```
+
+LocalContainerEntityManagerFactoryBean - container managed
+LocalEntityManagerFactoryBean - application managed
+
+A Big Note : For spring based applications, the difference is not much. 
+Spring only plays roles ( as container if you configure LocalContainerEntityManagerFactoryBean and as application if you configure LocalEntityManagerFactoryBean)
 
 Declaring that something is a unit of work we annotate it with @Transactional in Spring with JPA, Hibernate or any other implementation.
 You can do that both on a service level or on a method level.
@@ -317,6 +324,13 @@ as you can understand the higher the locking level - the slower the performance
 * Serializable 
     * does not permit any read errors.
     
+To see serializable in action: https://www.youtube.com/watch?v=NHKHzwolbKU
+
+
+OH OH!
+
+https://www.baeldung.com/jpa-pessimistic-locking
+    
 ---
 
 # Let us for a second forus on our tooling
@@ -329,6 +343,9 @@ READ COMMITTED (since stronger modes only make your systems slower)
 
 (change my mind ...)
 
+
+
+
 # Seeing transactions work
 
 Configure logging of “org.springframework.transaction” to be configured with a logging level of TRACE.
@@ -336,10 +353,15 @@ This way you can see more information about what is going on in your transaction
 
 # Why the hell did I dive into transactions?
 
-Oh yes! Our live issue:
+Oh yes! Our live issue, flood of optimistic locking exceptions.
 
+So what happened is we have a call on our systems that does to much.
+When you just want to get the data, it also checks if it needs to refresh; therefor creating a lot of interaction with the data it is manipulating itself.
 
-Solve it with versioning!
+Now there is an optimistic locking exception being thrown, and this is good because this is actually saying: 
+
+Hi there, how nice of you 
+
 
 Spring / Hibernate @Version 
 

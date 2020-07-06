@@ -14,12 +14,12 @@ public class RequiresNewOuterTransactionService {
 
     private final ProductRepository productRepository;
 
-    private final RequiresNewInnerTransactionService addTenProducts;
+    private final RequiresNewInnerTransactionService requiresNewInnerTransactionService;
 
     @Transactional
     public void addProduct(final boolean outer, final boolean inner) {
         productRepository.save(new Product(null, "Beer"));
-        addTenProducts.addTenProducts(inner);
+        requiresNewInnerTransactionService.addTenProducts(inner);
         if (outer) {
             throw new RuntimeException();
         }

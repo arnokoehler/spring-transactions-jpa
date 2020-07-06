@@ -24,4 +24,13 @@ public class TransactionalProductService {
             }
         }
     }
+
+    public Product getOne(Long id) {
+        return productRepository.findById(id).get();
+    }
+
+    public Product deleteAndReplace() {
+        productRepository.deleteAll();
+        return productRepository.save(new Product(null, "peer"));
+    }
 }
