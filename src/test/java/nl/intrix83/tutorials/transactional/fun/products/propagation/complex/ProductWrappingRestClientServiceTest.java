@@ -8,10 +8,17 @@ import nl.intrix83.tutorials.transactional.fun.products.TestBase;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
@@ -27,16 +34,41 @@ public class ProductWrappingRestClientServiceTest extends TestBase {
 
     @Test
     public void shouldRunRestCallInsideTransaction() {
+        Mockito.when(restTemplate.getForEntity("https://randomuser.me/api/", User.class))
+                .thenReturn(new ResponseEntity(getUser(), HttpStatus.OK));
+
         productWrappingRestClientService.addTenProducts(0);
 
         assertThat(productRepository.findAll()).hasSize(10);
     }
 
     @Test
+    public void shouldRunRestCallInsideTransactionAndDoFailOnRestCall() {
+        Mockito.when(restTemplate.getForEntity("https://randomuser.me/api/", User.class))
+                .thenThrow(new RestClientException("fake error"));
+
+        assertThatThrownBy(() -> productWrappingRestClientService.addTenProducts(0)) //
+                .isInstanceOf(RestClientException.class);
+
+        assertThat(productRepository.findAll()).hasSize(0);
+    }
+
+    @Test
     public void shouldRunRestCallInsideTransactionThatIsRolledBackByError() {
-        assertThatThrownBy(() -> productWrappingRestClientService.addTenProducts(9)) //
+        Mockito.when(restTemplate.getForEntity("https://randomuser.me/api/", User.class))
+                .thenReturn(new ResponseEntity(getUser(), HttpStatus.OK));
+
+        assertThatThrownBy(() -> productWrappingRestClientService.addTenProducts(5)) //
                 .isInstanceOf(RuntimeException.class);
 
         assertThat(productRepository.findAll()).hasSize(0);
+    }
+
+    private User getUser() {
+        return User.builder()
+                .name("sjaak")
+                .lastname("zwart")
+                .role("user")
+                .build();
     }
 }

@@ -21,7 +21,7 @@ public class ProductWrappingRestClientService {
 
     public void addTenProducts(int throwErrorOnItem) {
         for (int i = 0; i < 10; i++) {
-            String getdata = randomUserClient.getdata();
+            User getdata = randomUserClient.getdata();
             log.info("for user " + getdata);
             productRepository.save(new Product(null, "Beer " + i));
             if (throwErrorOnItem > 0 && i == throwErrorOnItem) {
