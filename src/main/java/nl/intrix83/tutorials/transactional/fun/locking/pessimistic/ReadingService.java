@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
 
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class ReadingService {
 
@@ -22,11 +21,13 @@ public class ReadingService {
 
     private final WriteLockedProductRepository writeLockedProductRepository;
 
-    public Optional<ReadLockedProduct> readReadLockedProduct(final String name) {
-        return readLockedProductRepository.findByName(name);
+    @Transactional(Transactional.TxType.REQUIRES_NEW)
+    public Optional<ReadLockedProduct> readReadLockedProduct(final Long id) {
+        return readLockedProductRepository.findById(id);
     }
 
-    public Optional<WriteLockedProduct> readWriteLockedProduct(final String name) {
-        return writeLockedProductRepository.findByName(name);
+    @Transactional(Transactional.TxType.REQUIRES_NEW)
+    public Optional<WriteLockedProduct> readWriteLockedProduct(final Long id) {
+        return writeLockedProductRepository.findById(id);
     }
 }

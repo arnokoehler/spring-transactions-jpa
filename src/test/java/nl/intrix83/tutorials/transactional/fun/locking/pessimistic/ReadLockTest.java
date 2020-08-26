@@ -38,14 +38,14 @@ public class ReadLockTest extends TestBase {
 
     @Before
     public void before() {
-        readLockedProductRepository.save(new ReadLockedProduct(1L, "piet"));
+        readLockedProductRepository.save(new ReadLockedProduct(1L, "Mortgage"));
     }
 
     @Test
     public void readLockProduct_shouldBeReadableByReadingService_whenNotLockedByLockingService() throws InterruptedException {
         // these calls are done serial and therefore etc.
-        Optional<ReadLockedProduct> piet = lockingService.findProductAndLockIt("piet", 2000);
-        Optional<ReadLockedProduct> piet1 = readingService.readReadLockedProduct("piet");
+        Optional<ReadLockedProduct> piet = lockingService.findProductAndLockIt("Mortgage", 2000);
+        Optional<ReadLockedProduct> piet1 = readingService.readReadLockedProduct(1L);
 
         assertThat(piet.get()).isNotNull();
         assertThat(piet1.get()).isNotNull();
@@ -56,13 +56,15 @@ public class ReadLockTest extends TestBase {
     public void readLockProduct_shouldNotBeReadableByReadingService_whenLockedByLockingService() throws InterruptedException, ExecutionException {
         ExecutorService executorService = Executors.newFixedThreadPool(2);
 
-        Future<Optional<ReadLockedProduct>> lock = executorService.submit(() -> lockingService.findProductAndLockIt("piet", 3000));
+        Future<Optional<ReadLockedProduct>> lock = executorService.submit(() -> lockingService.findProductAndLockIt("Mortgage", 3000));
 
         Future<Optional<ReadLockedProduct>> locked = null;
 
         while(!lock.isDone()) {
-            locked = printStatus(lock, executorService.submit(() -> readingService.readReadLockedProduct("piet")));
-            Thread.sleep(300);
+            locked = printStatus(lock, executorService.submit(() -> readingService.readReadLockedProduct(1L)));
+            while(!locked.isDone()) {
+                Thread.sleep(300);
+            }
         }
 
         Optional<ReadLockedProduct> readLockedProduct = lock.get();
@@ -83,19 +85,6 @@ public class ReadLockTest extends TestBase {
                 )
         );
         return locked;
-    }
-
-    @Test
-    public void writeLockProduct_shouldNotBeReadableByReadingService_whenLockedByLockingService() throws InterruptedException, ExecutionException {
-        ExecutorService executorService = Executors.newFixedThreadPool(2);
-
-        Future<Optional<WriteLockedProduct>> lock = executorService.submit(() -> lockingService.findProductAndLockItByWriting("piet", "nietPiet", 3000));
-        Future<Optional<WriteLockedProduct>> locked = executorService.submit(() -> readingService.readWriteLockedProduct("piet"));
-
-        //        assertThat(lock.get().get()).isNotNull();
-        //        assertThat(locked.get()).isNotPresent();
-
-        executorService.shutdown();
     }
 
 }

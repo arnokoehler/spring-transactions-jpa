@@ -23,17 +23,21 @@ public class LockingService {
 
     private final WriteLockedProductRepository writeLockedProductRepository;
 
+    @Transactional(Transactional.TxType.REQUIRES_NEW)
     public Optional<ReadLockedProduct> findProductAndLockIt(final String name, final int millis) throws InterruptedException {
         Optional<ReadLockedProduct> byName = readLockedProductRepository.findByName(name);
         Thread.sleep(millis);
         return byName;
     }
 
+    @Transactional(Transactional.TxType.REQUIRES_NEW)
     public Optional<WriteLockedProduct> findProductAndLockItByWriting(final String name, final String newName, final int millis) throws InterruptedException {
         Optional<WriteLockedProduct> byName = writeLockedProductRepository.findByName(name);
-        byName.map(replaceName(newName));
+
+        Optional<WriteLockedProduct> writeLockedProduct = byName.map(replaceName(newName));
         Thread.sleep(millis);
-        return byName;
+
+        return writeLockedProduct;
     }
 
     @org.jetbrains.annotations.NotNull

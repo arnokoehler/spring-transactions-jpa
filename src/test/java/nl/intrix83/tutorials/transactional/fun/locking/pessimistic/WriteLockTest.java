@@ -1,5 +1,7 @@
 package nl.intrix83.tutorials.transactional.fun.locking.pessimistic;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -37,13 +39,47 @@ public class WriteLockTest extends TestBase {
 
     @Before
     public void before() {
-        writeLockedProductRepository.save(new WriteLockedProduct(1L, "sjaak"));
+        writeLockedProductRepository.save(new WriteLockedProduct(1L, "Mortgage"));
     }
 
     @Test
-    public void readLockProduct_shouldNotBeReadableByReadingService_whenLockedByLockingService() throws InterruptedException {
-        lockingService.findProductAndLockItByWriting("piet", "kees", 2000);
-        readingService.readReadLockedProduct("piet");
+    public void writeLockProduct_shouldBeReadableByReadingService_whenNotLockedByLockingService_becauseDoneTooFast() throws InterruptedException {
+        lockingService.findProductAndLockItByWriting("Mortgage", "LinearMortgage", 2000);
+        readingService.readWriteLockedProduct(1L);
     }
 
+    @Test
+    public void writeLockProduct_shouldNotBeReadableByReadingService_whenLockedByLockingService() throws InterruptedException, ExecutionException {
+        ExecutorService executorService = Executors.newFixedThreadPool(2);
+
+        Future<Optional<WriteLockedProduct>> lock = executorService.submit(() -> lockingService.findProductAndLockItByWriting("Mortgage", "LinearMortgage", 3000));
+
+        Future<Optional<WriteLockedProduct>> locked = null;
+
+        while(!lock.isDone()) {
+            locked = printStatus(lock, executorService.submit(() -> readingService.readWriteLockedProduct(1L)));
+            while(!locked.isDone()) {
+                Thread.sleep(300);
+            }
+        }
+
+        Optional<WriteLockedProduct> writeLockedProduct = lock.get();
+        Optional<WriteLockedProduct> optionalWriteLockedProduct = locked.get();
+
+        assertThat(optionalWriteLockedProduct).isNotPresent();
+        assertThat(writeLockedProduct).isPresent();
+
+        executorService.shutdown();
+    }
+
+    private Future<Optional<WriteLockedProduct>> printStatus(Future<Optional<WriteLockedProduct>> lock, Future<Optional<WriteLockedProduct>> locked) {
+        System.out.println(
+                String.format(
+                        "future1 is %s and future2 is %s",
+                        lock.isDone() ? "done" : "not done",
+                        locked.isDone() ? "done" : "not done"
+                )
+        );
+        return locked;
+    }
 }
