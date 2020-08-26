@@ -50,7 +50,7 @@ public class WriteLockTest extends TestBase {
     public void writeLockProduct_shouldNotBeReadableByReadingService_whenLockedByLockingService() throws InterruptedException, ExecutionException {
         ExecutorService executorService = Executors.newFixedThreadPool(2);
 
-        Future<Optional<WriteLockedProduct>> lock = executorService.submit(() -> lockingService.findProductAndLockItByWriting("Mortgage", "LinearMortgage", 300000));
+        Future<Optional<WriteLockedProduct>> lock = executorService.submit(() -> lockingService.findProductAndLockItByWriting("Mortgage", "LinearMortgage", 5000));
 
         Future<Optional<WriteLockedProduct>> locked = executorService.submit(() -> {
             Thread.sleep(1000);
