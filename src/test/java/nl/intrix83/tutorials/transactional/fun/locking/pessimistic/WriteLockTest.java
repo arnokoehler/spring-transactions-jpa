@@ -8,8 +8,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import nl.intrix83.tutorials.transactional.fun.locking.pessimistic.read.ReadLockedProduct;
-import nl.intrix83.tutorials.transactional.fun.locking.pessimistic.read.ReadLockedProductRepository;
 import nl.intrix83.tutorials.transactional.fun.locking.pessimistic.write.WriteLockedProduct;
 import nl.intrix83.tutorials.transactional.fun.locking.pessimistic.write.WriteLockedProductRepository;
 import nl.intrix83.tutorials.transactional.fun.products.TestBase;
@@ -52,15 +50,16 @@ public class WriteLockTest extends TestBase {
     public void writeLockProduct_shouldNotBeReadableByReadingService_whenLockedByLockingService() throws InterruptedException, ExecutionException {
         ExecutorService executorService = Executors.newFixedThreadPool(2);
 
-        Future<Optional<WriteLockedProduct>> lock = executorService.submit(() -> lockingService.findProductAndLockItByWriting("Mortgage", "LinearMortgage", 3000));
+        Future<Optional<WriteLockedProduct>> lock = executorService.submit(() -> lockingService.findProductAndLockItByWriting("Mortgage", "LinearMortgage", 300000));
 
-        Future<Optional<WriteLockedProduct>> locked = null;
+        Future<Optional<WriteLockedProduct>> locked = executorService.submit(() -> {
+            Thread.sleep(1000);
+            return readingService.readWriteLockedProduct(1L);
+        });
 
-        while(!lock.isDone()) {
-            locked = printStatus(lock, executorService.submit(() -> readingService.readWriteLockedProduct(1L)));
-            while(!locked.isDone()) {
-                Thread.sleep(300);
-            }
+        while (!(lock.isDone() && locked.isDone())) {
+            printStatus(lock, locked);
+            Thread.sleep(300);
         }
 
         Optional<WriteLockedProduct> writeLockedProduct = lock.get();

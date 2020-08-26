@@ -13,7 +13,9 @@ import nl.intrix83.tutorials.transactional.fun.locking.pessimistic.write.WriteLo
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -34,9 +36,13 @@ public class LockingService {
     public Optional<WriteLockedProduct> findProductAndLockItByWriting(final String name, final String newName, final int millis) throws InterruptedException {
         Optional<WriteLockedProduct> byName = writeLockedProductRepository.findByName(name);
 
+        log.info("start modifying data LOCK expected to kick in now!");
         Optional<WriteLockedProduct> writeLockedProduct = byName.map(replaceName(newName));
+
+        log.info("thread will sleep transaction should stay open locking row");
         Thread.sleep(millis);
 
+        log.info("sleep is done");
         return writeLockedProduct;
     }
 

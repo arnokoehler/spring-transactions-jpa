@@ -13,8 +13,8 @@ import org.springframework.data.jpa.repository.Lock;
 public interface ReadLockedProductRepository extends JpaRepository<ReadLockedProduct, Long> {
 
     @Lock(LockModeType.PESSIMISTIC_READ)
-    public @NotNull Optional<ReadLockedProduct> findById(final @NotNull Long id);
+    @NotNull Optional<ReadLockedProduct> findById(final @NotNull Long id);
 
     @Lock(LockModeType.PESSIMISTIC_READ)
-    public Optional<ReadLockedProduct> findByName(final String name);
+    Optional<ReadLockedProduct> findByName(final String name);
 }

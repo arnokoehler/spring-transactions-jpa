@@ -12,5 +12,5 @@ import org.springframework.data.jpa.repository.Lock;
 public interface WriteLockedProductRepository extends JpaRepository<WriteLockedProduct, Long> {
 
     @Lock(LockModeType.PESSIMISTIC_READ)
-    public Optional<WriteLockedProduct> findByName(final String name);
+    Optional<WriteLockedProduct> findByName(final String name);
 }

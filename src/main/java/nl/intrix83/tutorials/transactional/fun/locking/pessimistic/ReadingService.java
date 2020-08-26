@@ -12,7 +12,9 @@ import nl.intrix83.tutorials.transactional.fun.locking.pessimistic.write.WriteLo
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ReadingService {
@@ -26,8 +28,12 @@ public class ReadingService {
         return readLockedProductRepository.findById(id);
     }
 
-    @Transactional(Transactional.TxType.REQUIRES_NEW)
+    @Transactional(Transactional.TxType.REQUIRES_NEW) // logs say that find by id is not transactional but how is that possible with @Lock(LockModeType.PESSIMISTIC_READ) ?!
     public Optional<WriteLockedProduct> readWriteLockedProduct(final Long id) {
-        return writeLockedProductRepository.findById(id);
+        log.info("find readWriteLockedProduct by id -> row should be locked by other service");
+        Optional<WriteLockedProduct> byId = writeLockedProductRepository.findById(id);
+
+        log.info("readWriteLockedProduct found and will be returned");
+        return byId;
     }
 }
