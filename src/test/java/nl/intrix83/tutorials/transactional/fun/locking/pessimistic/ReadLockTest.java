@@ -7,6 +7,12 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.LockModeType;
+import javax.persistence.Persistence;
 
 import nl.intrix83.tutorials.transactional.fun.locking.pessimistic.read.ReadLockedProduct;
 import nl.intrix83.tutorials.transactional.fun.locking.pessimistic.read.ReadLockedProductRepository;
@@ -21,6 +27,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @SpringBootTest
 @RunWith(SpringRunner.class)
 @Sql(statements = { "CREATE TABLE read_locked_product (id SERIAL, name VARCHAR (255));\n" }, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
@@ -38,7 +47,7 @@ public class ReadLockTest extends TestBase {
 
     @Before
     public void before() {
-        readLockedProductRepository.save(new ReadLockedProduct(1L, "piet"));
+//        readLockedProductRepository.save(new ReadLockedProduct(1L, "piet"));
     }
 
     @Test
