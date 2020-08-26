@@ -25,7 +25,7 @@ public class ReadingService {
 
     @Transactional(Transactional.TxType.REQUIRES_NEW)
     public Optional<ReadLockedProduct> readReadLockedProduct(final Long id) {
-        return readLockedProductRepository.findById(id);
+        return readLockedProductRepository.findOneForUpdate(id);
     }
 
     @Transactional(Transactional.TxType.REQUIRES_NEW) // logs say that find by id is not transactional but how is that possible with @Lock(LockModeType.PESSIMISTIC_READ) ?!

@@ -26,8 +26,8 @@ public class LockingService {
     private final WriteLockedProductRepository writeLockedProductRepository;
 
     @Transactional(Transactional.TxType.REQUIRES_NEW)
-    public Optional<ReadLockedProduct> findProductAndLockIt(final String name, final int millis) throws InterruptedException {
-        Optional<ReadLockedProduct> byName = readLockedProductRepository.findByName(name);
+    public Optional<ReadLockedProduct> findProductAndLockIt(final Long id, final int millis) throws InterruptedException {
+        Optional<ReadLockedProduct> byName = readLockedProductRepository.findOneForUpdate(id);
         Thread.sleep(millis);
         return byName;
     }

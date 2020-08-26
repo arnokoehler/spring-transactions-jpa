@@ -44,7 +44,7 @@ public class ReadLockTest extends TestBase {
     @Test
     public void readLockProduct_shouldBeReadableByReadingService_whenNotLockedByLockingService() throws InterruptedException {
         // these calls are done serial and therefore etc.
-        Optional<ReadLockedProduct> piet = lockingService.findProductAndLockIt("Mortgage", 2000);
+        Optional<ReadLockedProduct> piet = lockingService.findProductAndLockIt(1L, 2000);
         Optional<ReadLockedProduct> piet1 = readingService.readReadLockedProduct(1L);
 
         assertThat(piet.get()).isNotNull();
@@ -56,7 +56,7 @@ public class ReadLockTest extends TestBase {
     public void readLockProduct_shouldNotBeReadableByReadingService_whenLockedByLockingService() throws InterruptedException, ExecutionException {
         ExecutorService executorService = Executors.newFixedThreadPool(2);
 
-        Future<Optional<ReadLockedProduct>> lock = executorService.submit(() -> lockingService.findProductAndLockIt("Mortgage", 5000));
+        Future<Optional<ReadLockedProduct>> lock = executorService.submit(() -> lockingService.findProductAndLockIt(1L, 5000));
 
         Future<Optional<ReadLockedProduct>> locked = executorService.submit(() -> {
             Thread.sleep(1000);
