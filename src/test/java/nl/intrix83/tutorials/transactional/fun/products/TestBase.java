@@ -10,7 +10,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.client.RestTemplate;
 import org.testcontainers.containers.PostgreSQLContainer;
 
-
 @ContextConfiguration(initializers = { TestBase.Initializer.class })
 public class TestBase {
 

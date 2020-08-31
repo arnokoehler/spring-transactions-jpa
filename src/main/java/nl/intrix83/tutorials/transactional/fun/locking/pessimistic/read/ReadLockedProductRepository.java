@@ -21,6 +21,6 @@ public interface ReadLockedProductRepository extends JpaRepository<ReadLockedPro
     Optional<ReadLockedProduct> findByName(final String name);
 
     @Lock(LockModeType.PESSIMISTIC_READ)
-    @Query("select p from ReadLockedProduct p where p.id = :id")
+    @Query("select p from AuditedProduct p where p.id = :id")
     @NotNull Optional<ReadLockedProduct> findOneForUpdate(@Param("id") Long id);
 }

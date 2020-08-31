@@ -1,6 +1,7 @@
 package nl.intrix83.tutorials.transactional.fun.locking.pessimistic;
 
 import java.util.Optional;
+import java.util.function.Function;
 
 import javax.transaction.Transactional;
 
@@ -35,5 +36,21 @@ public class ReadingService {
 
         log.info("readWriteLockedProduct found and will be returned");
         return byId;
+    }
+
+    @Transactional(Transactional.TxType.REQUIRES_NEW)
+    public Optional<ReadLockedProduct> tryToFindAndUpdateLockedProduct(final Long id, final String newProductName) {
+        log.info("find readWriteLockedProduct by id -> row should be locked by other service");
+
+        Optional<ReadLockedProduct> byId = readLockedProductRepository.findOneForUpdate(id);
+        return byId.map(replaceName(newProductName));
+    }
+
+    @org.jetbrains.annotations.NotNull
+    private Function<ReadLockedProduct, ReadLockedProduct> replaceName(final String newName) {
+        return it -> {
+            it.setName(newName);
+            return readLockedProductRepository.save(it);
+        };
     }
 }
